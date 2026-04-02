@@ -1,0 +1,25 @@
+{
+  "name": "user-authentication-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production-ready JWT + bcrypt authentication boilerplate with Node/Express, MongoDB, React & TailwindCSS",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev --workspace=server",
+    "dev:client": "npm run dev --workspace=client",
+    "dev": "npm run dev:server & npm run dev:client",
+    "install:all": "npm install --workspaces"
+  },
+  "keywords": [
+    "authentication",
+    "jwt",
+    "bcrypt",
+    "express",
+    "react",
+    "mongodb"
+  ],
+  "license": "MIT"
+}
