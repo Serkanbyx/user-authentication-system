@@ -6,14 +6,13 @@ const morgan = require('morgan');
 const { globalLimiter, authLimiter } = require('./middlewares/rateLimiter');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const AppError = require('./middlewares/AppError');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
-// Security headers
 app.use(helmet());
 
-// CORS — whitelist frontend origin with credentials
 app.use(
   cors({
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
@@ -21,25 +20,25 @@ app.use(
   })
 );
 
-// Request logging (dev only)
 if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
-// Body parser with size limit
 app.use(express.json({ limit: '10kb' }));
-
-// Cookie parser for httpOnly cookies
 app.use(cookieParser());
-
-// Global rate limiter — 100 req / 15 min
 app.use(globalLimiter);
 
-// Routes (auth routes have stricter rate limiter — 10 req / 15 min)
+app.get('/api/health', (_req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/users', userRoutes);
 
-// Centralized error handler
+app.all('*', (req, _res, next) => {
+  next(new AppError(`Cannot find ${req.method} ${req.originalUrl}`, 404));
+});
+
 app.use(errorHandler);
 
 module.exports = app;
