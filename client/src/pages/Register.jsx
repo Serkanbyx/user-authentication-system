@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
+import { Alert, Button, Card, Input } from '../components/ui';
 
 const PASSWORD_RULES = [
   { key: 'length', label: 'At least 8 characters', test: (v) => v.length >= 8 },
@@ -111,7 +112,7 @@ const Register = () => {
   if (isSuccess) {
     return (
       <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center px-4">
-        <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-gray-200/60">
+        <Card className="w-full max-w-md text-center">
           {/* Mail icon */}
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50">
             <svg
@@ -146,7 +147,7 @@ const Register = () => {
           >
             Go to Login
           </Link>
-        </div>
+        </Card>
       </div>
     );
   }
@@ -168,88 +169,47 @@ const Register = () => {
         </div>
 
         {/* Form Card */}
-        <div className="mt-8 rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-200/60">
-          {/* Server Error */}
-          {serverError && (
-            <div className="mb-6 flex items-start gap-3 rounded-lg bg-red-50 p-4 ring-1 ring-red-200/60" role="alert">
-              <svg className="mt-0.5 h-5 w-5 shrink-0 text-red-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
-              </svg>
-              <p className="text-sm text-red-700">{serverError}</p>
-            </div>
-          )}
+        <Card className="mt-8">
+          {serverError ? <Alert variant="error">{serverError}</Alert> : null}
 
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
-            {/* Name */}
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Full Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                value={formData.name}
-                onChange={handleChange}
-                className={`mt-1.5 block w-full rounded-lg border px-3.5 py-2.5 text-gray-900 shadow-sm outline-none transition-colors placeholder:text-gray-400 focus:ring-2 focus:ring-inset ${
-                  errors.name
-                    ? 'border-red-300 focus:ring-red-500'
-                    : 'border-gray-300 focus:ring-indigo-600'
-                }`}
-                placeholder="John Doe"
-              />
-              {errors.name && (
-                <p className="mt-1.5 text-sm text-red-600">{errors.name}</p>
-              )}
-            </div>
+            <Input
+              id="name"
+              name="name"
+              type="text"
+              label="Full Name"
+              autoComplete="name"
+              value={formData.name}
+              onChange={handleChange}
+              error={errors.name}
+              placeholder="John Doe"
+            />
 
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email Address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                value={formData.email}
-                onChange={handleChange}
-                className={`mt-1.5 block w-full rounded-lg border px-3.5 py-2.5 text-gray-900 shadow-sm outline-none transition-colors placeholder:text-gray-400 focus:ring-2 focus:ring-inset ${
-                  errors.email
-                    ? 'border-red-300 focus:ring-red-500'
-                    : 'border-gray-300 focus:ring-indigo-600'
-                }`}
-                placeholder="you@example.com"
-              />
-              {errors.email && (
-                <p className="mt-1.5 text-sm text-red-600">{errors.email}</p>
-              )}
-            </div>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              label="Email Address"
+              autoComplete="email"
+              value={formData.email}
+              onChange={handleChange}
+              error={errors.email}
+              placeholder="you@example.com"
+            />
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
+              <Input
                 id="password"
                 name="password"
                 type="password"
+                label="Password"
                 autoComplete="new-password"
                 value={formData.password}
                 onChange={handleChange}
-                className={`mt-1.5 block w-full rounded-lg border px-3.5 py-2.5 text-gray-900 shadow-sm outline-none transition-colors placeholder:text-gray-400 focus:ring-2 focus:ring-inset ${
-                  errors.password
-                    ? 'border-red-300 focus:ring-red-500'
-                    : 'border-gray-300 focus:ring-indigo-600'
-                }`}
+                error={errors.password}
                 placeholder="••••••••"
               />
-              {errors.password && (
-                <p className="mt-1.5 text-sm text-red-600">{errors.password}</p>
-              )}
 
               {/* Password Strength Indicator */}
               {formData.password && (
@@ -300,43 +260,23 @@ const Register = () => {
               )}
             </div>
 
-            {/* Confirm Password */}
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className={`mt-1.5 block w-full rounded-lg border px-3.5 py-2.5 text-gray-900 shadow-sm outline-none transition-colors placeholder:text-gray-400 focus:ring-2 focus:ring-inset ${
-                  errors.confirmPassword
-                    ? 'border-red-300 focus:ring-red-500'
-                    : 'border-gray-300 focus:ring-indigo-600'
-                }`}
-                placeholder="••••••••"
-              />
-              {errors.confirmPassword && (
-                <p className="mt-1.5 text-sm text-red-600">{errors.confirmPassword}</p>
-              )}
-            </div>
+            <Input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              label="Confirm Password"
+              autoComplete="new-password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              error={errors.confirmPassword}
+              placeholder="••••••••"
+            />
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed transition-colors cursor-pointer"
-            >
-              {isSubmitting && (
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              )}
+            <Button type="submit" variant="primary" loading={isSubmitting} fullWidth>
               {isSubmitting ? 'Creating account...' : 'Create account'}
-            </button>
+            </Button>
           </form>
-        </div>
+        </Card>
 
         {/* Footer link (mobile-friendly) */}
         <p className="mt-6 text-center text-sm text-gray-500">
