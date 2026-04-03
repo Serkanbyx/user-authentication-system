@@ -1,22 +1,7 @@
 import { useState, useCallback } from 'react';
 import useAuth from '../hooks/useAuth';
 import api from '../api/axios';
-
-const PASSWORD_RULES = [
-  { key: 'length', label: 'At least 8 characters', test: (v) => v.length >= 8 },
-  { key: 'uppercase', label: 'One uppercase letter', test: (v) => /[A-Z]/.test(v) },
-  { key: 'lowercase', label: 'One lowercase letter', test: (v) => /[a-z]/.test(v) },
-  { key: 'number', label: 'One number', test: (v) => /\d/.test(v) },
-];
-
-const getPasswordStrength = (password) => {
-  const passed = PASSWORD_RULES.filter((r) => r.test(password)).length;
-  if (passed === 0) return { level: 0, label: '', color: '' };
-  if (passed <= 1) return { level: 1, label: 'Weak', color: 'bg-red-500' };
-  if (passed <= 2) return { level: 2, label: 'Fair', color: 'bg-orange-500' };
-  if (passed <= 3) return { level: 3, label: 'Good', color: 'bg-yellow-500' };
-  return { level: 4, label: 'Strong', color: 'bg-green-500' };
-};
+import { PASSWORD_RULES, getPasswordStrength } from '../utils/passwordValidation';
 
 const INPUT_BASE = 'mt-1.5 block w-full rounded-lg border px-3.5 py-2.5 text-gray-900 shadow-sm outline-none transition-colors placeholder:text-gray-400 focus:ring-2 focus:ring-inset';
 
