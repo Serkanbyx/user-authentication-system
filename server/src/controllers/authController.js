@@ -11,7 +11,7 @@ const {
   verificationEmailTemplate,
   resetPasswordEmailTemplate,
 } = require("../utils/sendEmail");
-const { REFRESH_COOKIE_NAME, refreshCookieOptions } = require("../utils/cookieOptions");
+const { REFRESH_COOKIE_NAME, getRefreshCookieOptions } = require("../utils/cookieOptions");
 
 /**
  * @route   POST /api/auth/register
@@ -39,11 +39,17 @@ const register = async (req, res, next) => {
     });
 
     const emailHtml = verificationEmailTemplate(user.name, verifyToken);
-    await sendEmail({
-      to: user.email,
-      subject: "Verify your email address",
-      html: emailHtml,
-    });
+
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: "Verify your email address",
+        html: emailHtml,
+      });
+    } catch {
+      await User.findByIdAndDelete(user._id);
+      throw new AppError("Registration failed — unable to send verification email. Please try again.", 503);
+    }
 
     res.status(201).json({
       success: true,
@@ -112,7 +118,7 @@ const login = async (req, res, next) => {
     const accessToken = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
 
-    res.cookie(REFRESH_COOKIE_NAME, refreshToken, refreshCookieOptions);
+    res.cookie(REFRESH_COOKIE_NAME, refreshToken, getRefreshCookieOptions());
 
     res.status(200).json({
       success: true,
@@ -168,7 +174,7 @@ const refresh = async (req, res, next) => {
  * @access  Public
  */
 const logout = (_req, res) => {
-  res.clearCookie(REFRESH_COOKIE_NAME, refreshCookieOptions);
+  res.clearCookie(REFRESH_COOKIE_NAME, getRefreshCookieOptions());
 
   res.status(200).json({
     success: true,
@@ -196,11 +202,16 @@ const forgotPassword = async (req, res, next) => {
       await user.save({ validateModifiedOnly: true });
 
       const emailHtml = resetPasswordEmailTemplate(user.name, resetToken);
-      await sendEmail({
-        to: user.email,
-        subject: "Password reset request",
-        html: emailHtml,
-      });
+
+      try {
+        await sendEmail({
+          to: user.email,
+          subject: "Password reset request",
+          html: emailHtml,
+        });
+      } catch (emailError) {
+        console.error(`Password reset email failed → ${user.email}:`, emailError.message);
+      }
     }
 
     // Always respond the same way to prevent email enumeration

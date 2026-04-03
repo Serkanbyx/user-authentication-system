@@ -5,7 +5,7 @@ const {
   sendEmail,
   verificationEmailTemplate,
 } = require("../utils/sendEmail");
-const { REFRESH_COOKIE_NAME, refreshCookieOptions } = require("../utils/cookieOptions");
+const { REFRESH_COOKIE_NAME, getRefreshCookieOptions } = require("../utils/cookieOptions");
 
 /**
  * @route   GET /api/users/profile
@@ -53,11 +53,16 @@ const updateProfile = async (req, res, next) => {
       user.verifyTokenExpire = Date.now() + 24 * 60 * 60 * 1000;
 
       const emailHtml = verificationEmailTemplate(user.name, user.verifyToken);
-      await sendEmail({
-        to: user.email,
-        subject: "Verify your new email address",
-        html: emailHtml,
-      });
+
+      try {
+        await sendEmail({
+          to: user.email,
+          subject: "Verify your new email address",
+          html: emailHtml,
+        });
+      } catch {
+        throw new AppError("Unable to send verification email. Email was not updated.", 503);
+      }
     }
 
     await user.save({ validateModifiedOnly: true });
@@ -102,7 +107,7 @@ const changePassword = async (req, res, next) => {
     user.password = newPassword;
     await user.save();
 
-    res.clearCookie(REFRESH_COOKIE_NAME, refreshCookieOptions);
+    res.clearCookie(REFRESH_COOKIE_NAME, getRefreshCookieOptions());
 
     res.status(200).json({
       success: true,

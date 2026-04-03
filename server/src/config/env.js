@@ -33,5 +33,4 @@ const validateEnv = () => {
 /** @returns {boolean} true if all SMTP env vars are set */
 const isEmailConfigured = () => optionalEnvVars.every((key) => process.env[key]);
 
-module.exports = validateEnv;
-module.exports.isEmailConfigured = isEmailConfigured;
+module.exports = { validateEnv, isEmailConfigured };

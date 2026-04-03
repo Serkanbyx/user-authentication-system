@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const { isEmailConfigured } = require('../config/env');
+const AppError = require('../middlewares/AppError');
 
 const createTransporter = () => {
   return nodemailer.createTransport({
@@ -15,9 +16,9 @@ const createTransporter = () => {
 
 /**
  * Sends an email using the configured SMTP transporter.
- * If SMTP is not configured, logs the email content to console and returns true.
+ * If SMTP is not configured, logs the email content to console (dev fallback).
+ * Throws AppError on delivery failure so callers can decide how to respond.
  * @param {{ to: string, subject: string, html: string }} options
- * @returns {Promise<boolean>} true if sent (or skipped), false on failure
  */
 const sendEmail = async ({ to, subject, html }) => {
   if (!isEmailConfigured()) {
@@ -32,24 +33,17 @@ const sendEmail = async ({ to, subject, html }) => {
       console.log(`  Link:    ${urlMatch[1]}`);
     }
     console.log('');
-    return true;
+    return;
   }
 
-  try {
-    const transporter = createTransporter();
+  const transporter = createTransporter();
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to,
-      subject,
-      html,
-    });
-
-    return true;
-  } catch (error) {
-    console.error(`Email send failed → ${to}:`, error.message);
-    return false;
-  }
+  await transporter.sendMail({
+    from: process.env.EMAIL_FROM,
+    to,
+    subject,
+    html,
+  });
 };
 
 // ── Email Templates ──────────────────────────────────────────────
