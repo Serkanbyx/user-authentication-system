@@ -1,10 +1,13 @@
 const rateLimit = require('express-rate-limit');
 
+const skipInTest = process.env.NODE_ENV === 'test' ? () => true : undefined;
+
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipInTest,
   message: {
     success: false,
     message: 'Too many requests, please try again after 15 minutes.',
@@ -16,6 +19,7 @@ const authLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipInTest,
   message: {
     success: false,
     message: 'Too many authentication attempts, please try again after 15 minutes.',
@@ -27,6 +31,7 @@ const sensitiveEndpointLimiter = rateLimit({
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipInTest,
   message: {
     success: false,
     message: 'Too many attempts, please try again after 1 hour.',

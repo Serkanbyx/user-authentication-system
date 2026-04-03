@@ -70,7 +70,7 @@ api.interceptors.response.use(
       localStorage.removeItem('accessToken');
       delete api.defaults.headers.common.Authorization;
 
-      // AuthContext tarafından dinlenecek custom event
+      // Dispatched so AuthContext can clear state on session expiry
       window.dispatchEvent(new CustomEvent('auth:session-expired'));
 
       return Promise.reject(refreshError);

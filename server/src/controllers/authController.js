@@ -11,18 +11,7 @@ const {
   verificationEmailTemplate,
   resetPasswordEmailTemplate,
 } = require("../utils/sendEmail");
-
-const REFRESH_COOKIE_NAME = "refreshToken";
-
-const isProduction = process.env.NODE_ENV === "production";
-
-const cookieOptions = {
-  httpOnly: true,
-  secure: isProduction,
-  sameSite: isProduction ? "none" : "strict",
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-  path: "/",
-};
+const { REFRESH_COOKIE_NAME, refreshCookieOptions } = require("../utils/cookieOptions");
 
 /**
  * @route   POST /api/auth/register
@@ -123,7 +112,7 @@ const login = async (req, res, next) => {
     const accessToken = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
 
-    res.cookie(REFRESH_COOKIE_NAME, refreshToken, cookieOptions);
+    res.cookie(REFRESH_COOKIE_NAME, refreshToken, refreshCookieOptions);
 
     res.status(200).json({
       success: true,
@@ -179,12 +168,7 @@ const refresh = async (req, res, next) => {
  * @access  Public
  */
 const logout = (_req, res) => {
-  res.clearCookie(REFRESH_COOKIE_NAME, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "strict",
-    path: "/",
-  });
+  res.clearCookie(REFRESH_COOKIE_NAME, refreshCookieOptions);
 
   res.status(200).json({
     success: true,

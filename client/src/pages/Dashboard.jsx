@@ -1,27 +1,9 @@
 import { useState, useCallback } from 'react';
 import useAuth from '../hooks/useAuth';
 import api from '../api/axios';
-import { PASSWORD_RULES, getPasswordStrength } from '../utils/passwordValidation';
+import { PASSWORD_RULES } from '../utils/passwordValidation';
+import { Alert, Button, Card, Input, PasswordStrengthIndicator } from '../components/ui';
 
-const INPUT_BASE = 'mt-1.5 block w-full rounded-lg border px-3.5 py-2.5 text-gray-900 shadow-sm outline-none transition-colors placeholder:text-gray-400 focus:ring-2 focus:ring-inset';
-
-const SuccessAlert = ({ message }) => (
-  <div className="mb-6 flex items-start gap-3 rounded-lg bg-green-50 p-4 ring-1 ring-green-200/60" role="status">
-    <svg className="mt-0.5 h-5 w-5 shrink-0 text-green-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
-    </svg>
-    <p className="text-sm text-green-700">{message}</p>
-  </div>
-);
-
-const ErrorAlert = ({ message }) => (
-  <div className="mb-6 flex items-start gap-3 rounded-lg bg-red-50 p-4 ring-1 ring-red-200/60" role="alert">
-    <svg className="mt-0.5 h-5 w-5 shrink-0 text-red-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
-    </svg>
-    <p className="text-sm text-red-700">{message}</p>
-  </div>
-);
 
 const Dashboard = () => {
   const { user, setUser } = useAuth();
@@ -43,8 +25,6 @@ const Dashboard = () => {
   const [passwordServerError, setPasswordServerError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
   const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
-
-  const newPasswordStrength = getPasswordStrength(passwordData.newPassword);
 
   // --- Profile Handlers ---
   const handleProfileChange = (e) => {
@@ -168,9 +148,6 @@ const Dashboard = () => {
     }
   };
 
-  const inputClasses = (hasError) =>
-    `${INPUT_BASE} ${hasError ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-indigo-600'}`;
-
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
       {/* Page Header */}
@@ -182,7 +159,7 @@ const Dashboard = () => {
       </div>
 
       {/* User Info Card */}
-      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200/60 sm:p-8">
+      <Card className="sm:p-8">
         <div className="flex items-center gap-4">
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xl font-bold text-indigo-600">
             {user?.name?.charAt(0).toUpperCase()}
@@ -211,188 +188,98 @@ const Dashboard = () => {
             </span>
           )}
         </div>
-      </div>
+      </Card>
 
       {/* Edit Profile Card */}
-      <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200/60 sm:p-8">
+      <Card className="mt-6 sm:p-8">
         <h3 className="text-lg font-semibold text-gray-900">Edit Profile</h3>
         <p className="mt-1 text-sm text-gray-500">Update your personal information.</p>
 
         <div className="mt-6">
-          {profileSuccess && <SuccessAlert message={profileSuccess} />}
-          {profileServerError && <ErrorAlert message={profileServerError} />}
+          {profileSuccess ? <Alert variant="success">{profileSuccess}</Alert> : null}
+          {profileServerError ? <Alert variant="error">{profileServerError}</Alert> : null}
 
           <form onSubmit={handleProfileSubmit} noValidate className="space-y-5">
-            <div>
-              <label htmlFor="profile-name" className="block text-sm font-medium text-gray-700">
-                Full Name
-              </label>
-              <input
-                id="profile-name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                value={profileData.name}
-                onChange={handleProfileChange}
-                className={inputClasses(profileErrors.name)}
-                placeholder="John Doe"
-              />
-              {profileErrors.name && (
-                <p className="mt-1.5 text-sm text-red-600">{profileErrors.name}</p>
-              )}
-            </div>
+            <Input
+              id="profile-name"
+              name="name"
+              type="text"
+              label="Full Name"
+              autoComplete="name"
+              value={profileData.name}
+              onChange={handleProfileChange}
+              error={profileErrors.name}
+              placeholder="John Doe"
+            />
 
             <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={isProfileSubmitting}
-                className="flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed transition-colors cursor-pointer"
-              >
-                {isProfileSubmitting && (
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                )}
+              <Button type="submit" variant="primary" loading={isProfileSubmitting}>
                 {isProfileSubmitting ? 'Saving...' : 'Save changes'}
-              </button>
+              </Button>
             </div>
           </form>
         </div>
-      </div>
+      </Card>
 
       {/* Change Password Card */}
-      <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200/60 sm:p-8">
+      <Card className="mt-6 sm:p-8">
         <h3 className="text-lg font-semibold text-gray-900">Change Password</h3>
         <p className="mt-1 text-sm text-gray-500">
           Ensure your account stays secure by using a strong password.
         </p>
 
         <div className="mt-6">
-          {passwordSuccess && <SuccessAlert message={passwordSuccess} />}
-          {passwordServerError && <ErrorAlert message={passwordServerError} />}
+          {passwordSuccess ? <Alert variant="success">{passwordSuccess}</Alert> : null}
+          {passwordServerError ? <Alert variant="error">{passwordServerError}</Alert> : null}
 
           <form onSubmit={handlePasswordSubmit} noValidate className="space-y-5">
-            {/* Current Password */}
-            <div>
-              <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700">
-                Current Password
-              </label>
-              <input
-                id="currentPassword"
-                name="currentPassword"
-                type="password"
-                autoComplete="current-password"
-                value={passwordData.currentPassword}
-                onChange={handlePasswordChange}
-                className={inputClasses(passwordErrors.currentPassword)}
-                placeholder="••••••••"
-              />
-              {passwordErrors.currentPassword && (
-                <p className="mt-1.5 text-sm text-red-600">{passwordErrors.currentPassword}</p>
-              )}
-            </div>
+            <Input
+              id="currentPassword"
+              name="currentPassword"
+              type="password"
+              label="Current Password"
+              autoComplete="current-password"
+              value={passwordData.currentPassword}
+              onChange={handlePasswordChange}
+              error={passwordErrors.currentPassword}
+              placeholder="••••••••"
+            />
 
-            {/* New Password */}
             <div>
-              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
-                New Password
-              </label>
-              <input
+              <Input
                 id="newPassword"
                 name="newPassword"
                 type="password"
+                label="New Password"
                 autoComplete="new-password"
                 value={passwordData.newPassword}
                 onChange={handlePasswordChange}
-                className={inputClasses(passwordErrors.newPassword)}
+                error={passwordErrors.newPassword}
                 placeholder="••••••••"
               />
-              {passwordErrors.newPassword && (
-                <p className="mt-1.5 text-sm text-red-600">{passwordErrors.newPassword}</p>
-              )}
-
-              {/* Password Strength Indicator */}
-              {passwordData.newPassword && (
-                <div className="mt-3">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs text-gray-500">Password strength</span>
-                    <span className={`text-xs font-medium ${
-                      newPasswordStrength.level <= 1 ? 'text-red-600' :
-                      newPasswordStrength.level === 2 ? 'text-orange-600' :
-                      newPasswordStrength.level === 3 ? 'text-yellow-600' :
-                      'text-green-600'
-                    }`}>
-                      {newPasswordStrength.label}
-                    </span>
-                  </div>
-                  <div className="flex gap-1">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className={`h-1.5 flex-1 rounded-full transition-colors ${
-                          i < newPasswordStrength.level ? newPasswordStrength.color : 'bg-gray-200'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <ul className="mt-2.5 space-y-1">
-                    {PASSWORD_RULES.map((rule) => {
-                      const passed = rule.test(passwordData.newPassword);
-                      return (
-                        <li key={rule.key} className="flex items-center gap-2 text-xs">
-                          {passed ? (
-                            <svg className="h-3.5 w-3.5 text-green-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                              <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
-                            </svg>
-                          ) : (
-                            <svg className="h-3.5 w-3.5 text-gray-300" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12z" clipRule="evenodd" />
-                            </svg>
-                          )}
-                          <span className={passed ? 'text-green-700' : 'text-gray-500'}>
-                            {rule.label}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              )}
+              <PasswordStrengthIndicator password={passwordData.newPassword} />
             </div>
 
-            {/* Confirm Password */}
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm New Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                value={passwordData.confirmPassword}
-                onChange={handlePasswordChange}
-                className={inputClasses(passwordErrors.confirmPassword)}
-                placeholder="••••••••"
-              />
-              {passwordErrors.confirmPassword && (
-                <p className="mt-1.5 text-sm text-red-600">{passwordErrors.confirmPassword}</p>
-              )}
-            </div>
+            <Input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              label="Confirm New Password"
+              autoComplete="new-password"
+              value={passwordData.confirmPassword}
+              onChange={handlePasswordChange}
+              error={passwordErrors.confirmPassword}
+              placeholder="••••••••"
+            />
 
             <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={isPasswordSubmitting}
-                className="flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed transition-colors cursor-pointer"
-              >
-                {isPasswordSubmitting && (
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                )}
+              <Button type="submit" variant="primary" loading={isPasswordSubmitting}>
                 {isPasswordSubmitting ? 'Updating...' : 'Update password'}
-              </button>
+              </Button>
             </div>
           </form>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

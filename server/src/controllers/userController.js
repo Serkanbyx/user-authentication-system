@@ -5,6 +5,7 @@ const {
   sendEmail,
   verificationEmailTemplate,
 } = require("../utils/sendEmail");
+const { REFRESH_COOKIE_NAME, refreshCookieOptions } = require("../utils/cookieOptions");
 
 /**
  * @route   GET /api/users/profile
@@ -83,17 +84,6 @@ const updateProfile = async (req, res, next) => {
  * @desc    Verify current password, then hash and save the new one
  * @access  Private
  */
-const REFRESH_COOKIE_NAME = "refreshToken";
-
-const isProduction = process.env.NODE_ENV === "production";
-
-const cookieOptions = {
-  httpOnly: true,
-  secure: isProduction,
-  sameSite: isProduction ? "none" : "strict",
-  path: "/",
-};
-
 const changePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
@@ -112,7 +102,7 @@ const changePassword = async (req, res, next) => {
     user.password = newPassword;
     await user.save();
 
-    res.clearCookie(REFRESH_COOKIE_NAME, cookieOptions);
+    res.clearCookie(REFRESH_COOKIE_NAME, refreshCookieOptions);
 
     res.status(200).json({
       success: true,

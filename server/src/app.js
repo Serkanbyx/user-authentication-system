@@ -33,7 +33,14 @@ if (process.env.NODE_ENV !== 'production') {
 
 app.use(express.json({ limit: '10kb' }));
 app.use(cookieParser());
-app.use(mongoSanitize());
+
+// express-mongo-sanitize v2 tries to overwrite req.query which is
+// read-only in Express 5, so we sanitize body and params manually.
+app.use((req, _res, next) => {
+  if (req.body) mongoSanitize.sanitize(req.body);
+  if (req.params) mongoSanitize.sanitize(req.params);
+  next();
+});
 app.use(globalLimiter);
 
 app.get('/', (_req, res) => {

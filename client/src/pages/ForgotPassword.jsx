@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
+import { Button, Card, Input } from '../components/ui';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -59,9 +60,8 @@ const ForgotPassword = () => {
         </div>
 
         {/* Card */}
-        <div className="mt-8 rounded-2xl bg-white p-8 shadow-sm ring-1 ring-gray-200/60">
+        <Card className="mt-8">
           {isSubmitted ? (
-            /* Success State */
             <div className="flex flex-col items-center gap-4 text-center">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
                 <svg className="h-6 w-6 text-green-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -86,44 +86,25 @@ const ForgotPassword = () => {
               </Link>
             </div>
           ) : (
-            /* Form State */
             <form onSubmit={handleSubmit} noValidate className="space-y-5">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                  Email Address
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={handleChange}
-                  className={`mt-1.5 block w-full rounded-lg border px-3.5 py-2.5 text-gray-900 shadow-sm outline-none transition-colors placeholder:text-gray-400 focus:ring-2 focus:ring-inset ${
-                    error
-                      ? 'border-red-300 focus:ring-red-500'
-                      : 'border-gray-300 focus:ring-indigo-600'
-                  }`}
-                  placeholder="you@example.com"
-                />
-                {error && (
-                  <p className="mt-1.5 text-sm text-red-600">{error}</p>
-                )}
-              </div>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                label="Email Address"
+                autoComplete="email"
+                value={email}
+                onChange={handleChange}
+                error={error}
+                placeholder="you@example.com"
+              />
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed transition-colors cursor-pointer"
-              >
-                {isSubmitting && (
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                )}
+              <Button type="submit" variant="primary" loading={isSubmitting} fullWidth>
                 {isSubmitting ? 'Sending...' : 'Send reset link'}
-              </button>
+              </Button>
             </form>
           )}
-        </div>
+        </Card>
 
         {/* Footer */}
         <p className="mt-6 text-center text-sm text-gray-500">

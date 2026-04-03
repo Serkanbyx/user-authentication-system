@@ -23,6 +23,7 @@ A production-ready, full-stack authentication system built with the **MERN** sta
 - **NoSQL Injection Protection** — express-mongo-sanitize strips MongoDB operators from user input
 - **Centralized Error Handling** — Custom AppError class with Mongoose and JWT error mapping, clean JSON responses
 - **Graceful Shutdown** — Proper HTTP server and MongoDB connection cleanup on process signals
+- **Tested** — 68 automated tests across backend (Jest + Supertest) and frontend (Vitest + React Testing Library)
 
 ---
 
@@ -54,6 +55,15 @@ A production-ready, full-stack authentication system built with the **MERN** sta
 - **express-rate-limit 8**: Tiered rate limiting for API protection
 - **express-validator 7**: Request validation and sanitization chains
 - **express-mongo-sanitize 2**: NoSQL injection prevention
+
+### Testing
+
+- **Jest 30**: Backend test framework with 32 integration tests
+- **Supertest 7**: HTTP assertions for Express endpoint testing
+- **MongoDB Memory Server**: In-memory MongoDB instance for isolated test runs
+- **Vitest 4**: Frontend test framework with 36 unit tests
+- **React Testing Library 16**: Component testing with DOM assertions
+- **Testing Library Jest DOM**: Custom matchers for DOM state
 
 ---
 
@@ -134,6 +144,16 @@ cd client && npm run dev
 ```
 
 The backend runs on `http://localhost:5000` and the frontend on `http://localhost:5173`.
+
+**5. Run tests:**
+
+```bash
+# Backend tests (Jest + Supertest)
+cd server && npm test
+
+# Frontend tests (Vitest + React Testing Library)
+cd client && npm test
+```
 
 ---
 
@@ -298,6 +318,7 @@ s4.5_User-Authentication-System/
 │   │   │       ├── Card.jsx
 │   │   │       ├── index.js         # Barrel export
 │   │   │       ├── Input.jsx
+│   │   │       ├── PasswordStrengthIndicator.jsx
 │   │   │       ├── Spinner.jsx
 │   │   │       └── Toast.jsx
 │   │   ├── context/
@@ -317,6 +338,10 @@ s4.5_User-Authentication-System/
 │   │   │   ├── Register.jsx         # Registration form
 │   │   │   ├── ResetPassword.jsx    # Set new password
 │   │   │   └── VerifyEmail.jsx      # Email verification handler
+│   │   ├── tests/
+│   │   │   ├── setup.js             # Vitest setup (jest-dom matchers)
+│   │   │   ├── components.test.jsx  # UI component tests (36 tests)
+│   │   │   └── passwordValidation.test.js
 │   │   ├── utils/
 │   │   │   └── passwordValidation.js # Password strength rules
 │   │   ├── App.jsx                  # Router configuration
@@ -346,8 +371,13 @@ s4.5_User-Authentication-System/
 │   │   │   ├── authRoutes.js        # /api/auth/*
 │   │   │   └── userRoutes.js        # /api/users/*
 │   │   └── utils/
+│   │       ├── cookieOptions.js     # Shared refresh cookie configuration
 │   │       ├── sendEmail.js         # Nodemailer transporter & HTML templates
 │   │       └── tokenUtils.js        # JWT & crypto token generators
+│   ├── tests/
+│   │   ├── setup.js                 # Test DB helpers (MongoMemoryServer)
+│   │   ├── auth.test.js             # Auth endpoint tests (22 tests)
+│   │   └── user.test.js             # User endpoint tests (10 tests)
 │   ├── server.js                    # Entry point — env validation, DB connect & listen
 │   ├── .env.example                 # Server env template
 │   └── package.json
@@ -367,6 +397,36 @@ s4.5_User-Authentication-System/
 ├── LICENSE
 └── README.md
 ```
+
+---
+
+## Testing
+
+The project includes **68 automated tests** covering both backend and frontend:
+
+### Backend — Jest + Supertest (32 tests)
+
+Tests run against an in-memory MongoDB instance (MongoMemoryServer) for fast, isolated execution.
+
+```bash
+cd server && npm test
+```
+
+| Suite | Tests | Coverage |
+|-------|-------|----------|
+| Auth endpoints | 22 | Register, login, verify email, refresh, logout, forgot/reset password |
+| User endpoints | 10 | Get profile, update profile, change password |
+
+### Frontend — Vitest + React Testing Library (36 tests)
+
+```bash
+cd client && npm test
+```
+
+| Suite | Tests | Coverage |
+|-------|-------|----------|
+| UI Components | 26 | Alert, Button, Card, Input, Spinner, PasswordStrengthIndicator |
+| Password Validation | 10 | PASSWORD_RULES, getPasswordStrength utility |
 
 ---
 
@@ -460,10 +520,12 @@ s4.5_User-Authentication-System/
 - ✅ Responsive design with mobile hamburger menu
 - ✅ Three-tier rate limiting (global, auth, sensitive)
 - ✅ Centralized error handling with Mongoose/JWT error mapping
-- ✅ Reusable UI component library (Button, Input, Card, Alert, Spinner, Toast)
+- ✅ Reusable UI component library (Button, Input, Card, Alert, Spinner, Toast, PasswordStrengthIndicator)
 - ✅ Email enumeration prevention
 - ✅ Graceful server shutdown
 - ✅ Deployment configs (Render + Netlify)
+- ✅ Backend integration tests (Jest + Supertest — 32 tests)
+- ✅ Frontend unit tests (Vitest + React Testing Library — 36 tests)
 
 ### Future Features
 
