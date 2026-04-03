@@ -6,7 +6,7 @@ const globalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: {
-    status: 'error',
+    success: false,
     message: 'Too many requests, please try again after 15 minutes.',
   },
 });
@@ -17,9 +17,20 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: {
-    status: 'error',
+    success: false,
     message: 'Too many authentication attempts, please try again after 15 minutes.',
   },
 });
 
-module.exports = { globalLimiter, authLimiter };
+const sensitiveEndpointLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Too many attempts, please try again after 1 hour.',
+  },
+});
+
+module.exports = { globalLimiter, authLimiter, sensitiveEndpointLimiter };

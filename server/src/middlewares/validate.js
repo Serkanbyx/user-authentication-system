@@ -1,4 +1,4 @@
-const { body, validationResult } = require("express-validator");
+const { body, param, validationResult } = require("express-validator");
 
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
@@ -139,6 +139,19 @@ const changePasswordValidation = [
   handleValidationErrors,
 ];
 
+const tokenParamValidation = [
+  param("token")
+    .trim()
+    .notEmpty()
+    .withMessage("Token is required")
+    .isLength({ min: 64, max: 64 })
+    .withMessage("Invalid token format")
+    .isHexadecimal()
+    .withMessage("Invalid token format"),
+
+  handleValidationErrors,
+];
+
 module.exports = {
   registerValidation,
   loginValidation,
@@ -146,4 +159,5 @@ module.exports = {
   resetPasswordValidation,
   updateProfileValidation,
   changePasswordValidation,
+  tokenParamValidation,
 };

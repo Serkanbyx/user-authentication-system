@@ -12,9 +12,11 @@ const {
  * @access  Private
  */
 const getProfile = async (req, res) => {
+  const { _id, name, email, isVerified, createdAt, updatedAt } = req.user;
+
   res.status(200).json({
     success: true,
-    user: req.user,
+    user: { id: _id, name, email, isVerified, createdAt, updatedAt },
   });
 };
 
@@ -47,6 +49,7 @@ const updateProfile = async (req, res, next) => {
       user.email = email;
       user.isVerified = false;
       user.verifyToken = generateCryptoToken();
+      user.verifyTokenExpire = Date.now() + 24 * 60 * 60 * 1000;
 
       const emailHtml = verificationEmailTemplate(user.name, user.verifyToken);
       await sendEmail({
@@ -80,6 +83,15 @@ const updateProfile = async (req, res, next) => {
  * @desc    Verify current password, then hash and save the new one
  * @access  Private
  */
+const REFRESH_COOKIE_NAME = "refreshToken";
+
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict",
+  path: "/",
+};
+
 const changePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
@@ -98,9 +110,11 @@ const changePassword = async (req, res, next) => {
     user.password = newPassword;
     await user.save();
 
+    res.clearCookie(REFRESH_COOKIE_NAME, cookieOptions);
+
     res.status(200).json({
       success: true,
-      message: "Password changed successfully.",
+      message: "Password changed successfully. Please log in again.",
     });
   } catch (error) {
     next(error);

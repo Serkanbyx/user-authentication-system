@@ -37,12 +37,14 @@ const register = async (req, res, next) => {
     }
 
     const verifyToken = generateCryptoToken();
+    const verifyTokenExpire = Date.now() + 24 * 60 * 60 * 1000;
 
     const user = await User.create({
       name,
       email,
       password,
       verifyToken,
+      verifyTokenExpire,
     });
 
     const emailHtml = verificationEmailTemplate(user.name, verifyToken);
@@ -70,13 +72,18 @@ const verifyEmail = async (req, res, next) => {
   try {
     const { token } = req.params;
 
-    const user = await User.findOne({ verifyToken: token });
+    const user = await User.findOne({
+      verifyToken: token,
+      verifyTokenExpire: { $gt: Date.now() },
+    }).select("+verifyToken +verifyTokenExpire");
+
     if (!user) {
       throw new AppError("Invalid or expired verification token", 400);
     }
 
     user.isVerified = true;
     user.verifyToken = undefined;
+    user.verifyTokenExpire = undefined;
     await user.save({ validateModifiedOnly: true });
 
     res.status(200).json({
@@ -192,7 +199,9 @@ const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select(
+      "+resetPasswordToken +resetPasswordExpire"
+    );
 
     if (user) {
       const resetToken = generateCryptoToken();
@@ -231,7 +240,7 @@ const resetPassword = async (req, res, next) => {
     const user = await User.findOne({
       resetPasswordToken: token,
       resetPasswordExpire: { $gt: Date.now() },
-    });
+    }).select("+resetPasswordToken +resetPasswordExpire");
 
     if (!user) {
       throw new AppError("Invalid or expired reset token", 400);

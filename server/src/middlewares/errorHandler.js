@@ -11,7 +11,7 @@ const handleMongooseDuplicateKeyError = (err) => {
 };
 
 const handleMongooseCastError = (err) => {
-  return new AppError(`Invalid value for ${err.path}: ${err.value}`, 400);
+  return new AppError(`Invalid value for ${err.path}`, 400);
 };
 
 const handleJwtError = () => {

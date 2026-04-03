@@ -2,6 +2,7 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const mongoSanitize = require('express-mongo-sanitize');
 const morgan = require('morgan');
 const { globalLimiter, authLimiter } = require('./middlewares/rateLimiter');
 const authRoutes = require('./routes/authRoutes');
@@ -26,6 +27,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 app.use(express.json({ limit: '10kb' }));
 app.use(cookieParser());
+app.use(mongoSanitize());
 app.use(globalLimiter);
 
 app.get('/api/health', (_req, res) => {
