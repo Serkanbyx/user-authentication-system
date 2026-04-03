@@ -41,7 +41,7 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/users', userRoutes);
 
-app.all('*', (req, _res, next) => {
+app.all('{*splat}', (req, _res, next) => {
   next(new AppError(`Cannot find ${req.method} ${req.originalUrl}`, 404));
 });
 
