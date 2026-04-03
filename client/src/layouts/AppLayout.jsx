@@ -188,7 +188,24 @@ const AppLayout = () => {
       <footer className="border-t border-gray-200/60 bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
           <p className="text-center text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} AuthGuard. All rights reserved.
+            Created by{' '}
+            <a
+              href="https://serkanbayraktar.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-indigo-600 hover:text-indigo-500 transition-colors"
+            >
+              Serkanby
+            </a>
+            {' | '}
+            <a
+              href="https://github.com/Serkanbyx"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-indigo-600 hover:text-indigo-500 transition-colors"
+            >
+              Github
+            </a>
           </p>
         </div>
       </footer>

@@ -1,3 +1,6 @@
+[![Created by Serkanby](https://img.shields.io/badge/Created%20by-Serkanby-blue?style=flat-square)](https://serkanbayraktar.com/)
+[![GitHub](https://img.shields.io/badge/GitHub-Serkanbyx-181717?style=flat-square&logo=github)](https://github.com/Serkanbyx)
+
 # User Authentication System
 
 Production-ready, full-stack authentication boilerplate with JWT access/refresh token strategy, email verification, password reset flow, and a modern React frontend. Designed as a secure, reusable starting point for any project that needs user authentication.
@@ -364,4 +367,20 @@ The forgot-password endpoint always responds with the same message (`"If an acco
 
 ## License
 
-This project is licensed under the [ISC License](https://opensource.org/licenses/ISC).
+This project is licensed under the [MIT License](./LICENSE).
+
+---
+
+## Developer
+
+**Serkanby**
+
+- Website: [serkanbayraktar.com](https://serkanbayraktar.com/)
+- GitHub: [@Serkanbyx](https://github.com/Serkanbyx)
+- Email: [serkanbyx1@gmail.com](mailto:serkanbyx1@gmail.com)
+
+## Contact
+
+- [Open an Issue](https://github.com/Serkanbyx/s4.5_User-Authentication-System/issues)
+- Email: [serkanbyx1@gmail.com](mailto:serkanbyx1@gmail.com)
+- Website: [serkanbayraktar.com](https://serkanbayraktar.com/)
