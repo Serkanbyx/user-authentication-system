@@ -14,10 +14,12 @@ const {
 
 const REFRESH_COOKIE_NAME = "refreshToken";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const cookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "strict",
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "strict",
   maxAge: 7 * 24 * 60 * 60 * 1000,
   path: "/",
 };
@@ -179,8 +181,8 @@ const refresh = async (req, res, next) => {
 const logout = (_req, res) => {
   res.clearCookie(REFRESH_COOKIE_NAME, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "strict",
     path: "/",
   });
 

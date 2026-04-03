@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const { isEmailConfigured } = require('../config/env');
 
 const createTransporter = () => {
   return nodemailer.createTransport({
@@ -14,11 +15,26 @@ const createTransporter = () => {
 
 /**
  * Sends an email using the configured SMTP transporter.
- * Fails gracefully — logs the error but never crashes the server.
+ * If SMTP is not configured, logs the email content to console and returns true.
  * @param {{ to: string, subject: string, html: string }} options
- * @returns {Promise<boolean>} true if sent, false on failure
+ * @returns {Promise<boolean>} true if sent (or skipped), false on failure
  */
 const sendEmail = async ({ to, subject, html }) => {
+  if (!isEmailConfigured()) {
+    console.log('\n╔══════════════════════════════════════════════════╗');
+    console.log('║  EMAIL SKIPPED — SMTP not configured             ║');
+    console.log('╚══════════════════════════════════════════════════╝');
+    console.log(`  To:      ${to}`);
+    console.log(`  Subject: ${subject}`);
+
+    const urlMatch = html.match(/href="([^"]*(?:verify-email|reset-password)[^"]*)"/);
+    if (urlMatch) {
+      console.log(`  Link:    ${urlMatch[1]}`);
+    }
+    console.log('');
+    return true;
+  }
+
   try {
     const transporter = createTransporter();
 

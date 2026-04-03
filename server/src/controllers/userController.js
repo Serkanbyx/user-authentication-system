@@ -85,10 +85,12 @@ const updateProfile = async (req, res, next) => {
  */
 const REFRESH_COOKIE_NAME = "refreshToken";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const cookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "strict",
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "strict",
   path: "/",
 };
 
