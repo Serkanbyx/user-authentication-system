@@ -45,7 +45,7 @@ router.use(protect);
  *   put:
  *     tags: [Users]
  *     summary: Update user profile
- *     description: Updates the user's name and/or email. If the email changes, the account is set to unverified and a new verification email is sent.
+ *     description: Updates the user's name and/or email. If the email changes, the new address is stored as a pending email and a verification link is sent to it; the current email stays active until the new one is verified.
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -76,6 +76,11 @@ router.use(protect);
  *                       type: string
  *                     email:
  *                       type: string
+ *                       description: The active email — unchanged until the new one is verified
+ *                     pendingEmail:
+ *                       type: string
+ *                       nullable: true
+ *                       description: A new email awaiting verification, if an email change was requested
  *                     isVerified:
  *                       type: boolean
  *       401:

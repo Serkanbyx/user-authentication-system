@@ -188,6 +188,25 @@ describe('POST /api/auth/refresh', () => {
 
     expect(res.statusCode).toBe(401);
   });
+
+  it('should reject a refresh token after logout (server-side revocation)', async () => {
+    await request(app).post('/api/auth/register').send(validUser);
+    await User.findOneAndUpdate({ email: validUser.email }, { isVerified: true });
+
+    const loginRes = await request(app)
+      .post('/api/auth/login')
+      .send({ email: validUser.email, password: validUser.password });
+
+    const cookies = loginRes.headers['set-cookie'];
+
+    await request(app).post('/api/auth/logout').set('Cookie', cookies);
+
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .set('Cookie', cookies);
+
+    expect(res.statusCode).toBe(401);
+  });
 });
 
 describe('POST /api/auth/logout', () => {

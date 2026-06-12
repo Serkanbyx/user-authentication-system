@@ -24,35 +24,33 @@ const handleJwtExpiredError = () => {
 
 // eslint-disable-next-line no-unused-vars
 const errorHandler = (err, _req, res, _next) => {
-  let error = { ...err, message: err.message, stack: err.stack };
+  let error = err;
 
   if (err.name === 'ValidationError') {
     error = handleMongooseValidationError(err);
-  }
-
-  if (err.code === 11000) {
+  } else if (err.code === 11000) {
     error = handleMongooseDuplicateKeyError(err);
-  }
-
-  if (err.name === 'CastError') {
+  } else if (err.name === 'CastError') {
     error = handleMongooseCastError(err);
-  }
-
-  if (err.name === 'JsonWebTokenError') {
+  } else if (err.name === 'JsonWebTokenError') {
     error = handleJwtError();
-  }
-
-  if (err.name === 'TokenExpiredError') {
+  } else if (err.name === 'TokenExpiredError') {
     error = handleJwtExpiredError();
   }
 
   const statusCode = error.statusCode || 500;
   const isProduction = process.env.NODE_ENV === 'production';
 
+  // Never leak internal error details for unexpected (non-operational) errors.
+  const message =
+    error.isOperational || statusCode !== 500
+      ? error.message
+      : 'Internal Server Error';
+
   res.status(statusCode).json({
     success: false,
-    message: error.message || 'Internal Server Error',
-    ...(isProduction ? {} : { stack: error.stack }),
+    message: message || 'Internal Server Error',
+    ...(isProduction ? {} : { stack: err.stack }),
   });
 };
 

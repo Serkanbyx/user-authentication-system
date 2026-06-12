@@ -24,6 +24,10 @@ const protect = async (req, _res, next) => {
       throw new AppError('User belonging to this token no longer exists.', 401);
     }
 
+    if (decoded.tokenVersion !== user.tokenVersion) {
+      throw new AppError('Session expired. Please login again.', 401);
+    }
+
     if (!user.isVerified) {
       throw new AppError('Please verify your email to access this resource.', 403);
     }

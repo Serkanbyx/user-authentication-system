@@ -90,10 +90,10 @@ Make sure you have the following installed:
 
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/REPOSITORY_NAME.git
+git clone https://github.com/YOUR_USERNAME/user-authentication-system.git
 
 # Navigate to project directory
-cd REPOSITORY_NAME
+cd user-authentication-system
 
 # Install dependencies (if applicable)
 # npm install / pip install -r requirements.txt / etc.

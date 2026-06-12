@@ -3,20 +3,22 @@ const crypto = require('crypto');
 
 /**
  * @param {string} userId - MongoDB ObjectId
+ * @param {number} tokenVersion - current user token version for revocation checks
  * @returns {string} JWT access token (short-lived)
  */
-const generateAccessToken = (userId) => {
-  return jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
+const generateAccessToken = (userId, tokenVersion = 0) => {
+  return jwt.sign({ userId, tokenVersion }, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: process.env.ACCESS_TOKEN_EXPIRE || '15m',
   });
 };
 
 /**
  * @param {string} userId - MongoDB ObjectId
+ * @param {number} tokenVersion - current user token version for revocation checks
  * @returns {string} JWT refresh token (long-lived, stored in httpOnly cookie)
  */
-const generateRefreshToken = (userId) => {
-  return jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET, {
+const generateRefreshToken = (userId, tokenVersion = 0) => {
+  return jwt.sign({ userId, tokenVersion }, process.env.REFRESH_TOKEN_SECRET, {
     expiresIn: process.env.REFRESH_TOKEN_EXPIRE || '7d',
   });
 };

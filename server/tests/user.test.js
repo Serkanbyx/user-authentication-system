@@ -96,6 +96,33 @@ describe('PUT /api/users/profile', () => {
 
     expect(res.statusCode).toBe(401);
   });
+
+  it('should keep the current email active until the new one is verified', async () => {
+    const { accessToken } = await createAndLoginUser();
+    const newEmail = 'updated@example.com';
+
+    const res = await request(app)
+      .put('/api/users/profile')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ email: newEmail });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.user.email).toBe(validUser.email);
+    expect(res.body.user.pendingEmail).toBe(newEmail);
+
+    const user = await User.findOne({ email: validUser.email }).select(
+      '+pendingEmail +verifyToken'
+    );
+    expect(user.pendingEmail).toBe(newEmail);
+    expect(user.isVerified).toBe(true);
+
+    const verifyRes = await request(app).get(`/api/auth/verify/${user.verifyToken}`);
+    expect(verifyRes.statusCode).toBe(200);
+
+    const updated = await User.findById(user._id).select('+pendingEmail');
+    expect(updated.email).toBe(newEmail);
+    expect(updated.pendingEmail).toBeUndefined();
+  });
 });
 
 describe('PUT /api/users/change-password', () => {
@@ -115,6 +142,21 @@ describe('PUT /api/users/change-password', () => {
       .send({ email: validUser.email, password: 'NewPass123' });
 
     expect(loginRes.statusCode).toBe(200);
+  });
+
+  it('should revoke the previous access token after a password change', async () => {
+    const { accessToken } = await createAndLoginUser();
+
+    await request(app)
+      .put('/api/users/change-password')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({ currentPassword: validUser.password, newPassword: 'NewPass123' });
+
+    const res = await request(app)
+      .get('/api/users/profile')
+      .set('Authorization', `Bearer ${accessToken}`);
+
+    expect(res.statusCode).toBe(401);
   });
 
   it('should return 401 with wrong current password', async () => {

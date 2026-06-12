@@ -47,16 +47,18 @@ const updateProfile = async (req, res, next) => {
     if (name) user.name = name;
 
     if (isEmailChanging) {
-      user.email = email;
-      user.isVerified = false;
-      user.verifyToken = generateCryptoToken();
+      // Keep the current email active; the new one only takes effect once the
+      // user verifies it, so they are never locked out of their account.
+      user.pendingEmail = email;
+      const verifyToken = generateCryptoToken();
+      user.verifyToken = verifyToken;
       user.verifyTokenExpire = Date.now() + 24 * 60 * 60 * 1000;
 
-      const emailHtml = verificationEmailTemplate(user.name, user.verifyToken);
+      const emailHtml = verificationEmailTemplate(user.name, verifyToken);
 
       try {
         await sendEmail({
-          to: user.email,
+          to: email,
           subject: "Verify your new email address",
           html: emailHtml,
         });
@@ -70,12 +72,13 @@ const updateProfile = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: isEmailChanging
-        ? "Profile updated. Please verify your new email address."
+        ? "Profile updated. Check your new inbox to confirm the email change."
         : "Profile updated successfully.",
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
+        pendingEmail: user.pendingEmail,
         isVerified: user.isVerified,
       },
     });
@@ -105,6 +108,9 @@ const changePassword = async (req, res, next) => {
     }
 
     user.password = newPassword;
+    // Invalidate the current access token and refresh cookie immediately so
+    // the password change forces a fresh login everywhere.
+    user.tokenVersion += 1;
     await user.save();
 
     res.clearCookie(REFRESH_COOKIE_NAME, getRefreshCookieOptions());

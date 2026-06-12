@@ -72,10 +72,17 @@ const verifyEmail = async (req, res, next) => {
     const user = await User.findOne({
       verifyToken: token,
       verifyTokenExpire: { $gt: Date.now() },
-    }).select("+verifyToken +verifyTokenExpire");
+    }).select("+verifyToken +verifyTokenExpire +pendingEmail");
 
     if (!user) {
       throw new AppError("Invalid or expired verification token", 400);
+    }
+
+    // When verifying an email change, promote the pending email to active.
+    const isEmailChange = Boolean(user.pendingEmail);
+    if (isEmailChange) {
+      user.email = user.pendingEmail;
+      user.pendingEmail = undefined;
     }
 
     user.isVerified = true;
@@ -85,7 +92,9 @@ const verifyEmail = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "Email verified successfully. You can now log in.",
+      message: isEmailChange
+        ? "Email address updated and verified successfully."
+        : "Email verified successfully. You can now log in.",
     });
   } catch (error) {
     next(error);
@@ -115,8 +124,8 @@ const login = async (req, res, next) => {
       throw new AppError("Please verify your email before logging in", 403);
     }
 
-    const accessToken = generateAccessToken(user._id);
-    const refreshToken = generateRefreshToken(user._id);
+    const accessToken = generateAccessToken(user._id, user.tokenVersion);
+    const refreshToken = generateRefreshToken(user._id, user.tokenVersion);
 
     res.cookie(REFRESH_COOKIE_NAME, refreshToken, getRefreshCookieOptions());
 
@@ -154,7 +163,11 @@ const refresh = async (req, res, next) => {
       throw new AppError("User no longer exists", 401);
     }
 
-    const accessToken = generateAccessToken(user._id);
+    if (decoded.tokenVersion !== user.tokenVersion) {
+      throw new AppError("Invalid or expired refresh token", 401);
+    }
+
+    const accessToken = generateAccessToken(user._id, user.tokenVersion);
 
     res.status(200).json({
       success: true,
@@ -170,10 +183,23 @@ const refresh = async (req, res, next) => {
 
 /**
  * @route   POST /api/auth/logout
- * @desc    Clear refresh token cookie
+ * @desc    Invalidate the refresh token server-side and clear the cookie
  * @access  Public
  */
-const logout = (_req, res) => {
+const logout = async (req, res) => {
+  const token = req.cookies[REFRESH_COOKIE_NAME];
+
+  // Bumping tokenVersion revokes any still-valid refresh/access tokens so a
+  // stolen cookie cannot be reused after logout. Failures are non-fatal.
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+      await User.findByIdAndUpdate(decoded.userId, { $inc: { tokenVersion: 1 } });
+    } catch {
+      // Invalid or expired token — nothing to revoke, just clear the cookie.
+    }
+  }
+
   res.clearCookie(REFRESH_COOKIE_NAME, getRefreshCookieOptions());
 
   res.status(200).json({
@@ -246,6 +272,8 @@ const resetPassword = async (req, res, next) => {
     user.password = password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
+    // Invalidate any sessions that may have been opened with the old password.
+    user.tokenVersion += 1;
     await user.save();
 
     res.status(200).json({
