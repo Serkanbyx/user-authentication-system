@@ -25,8 +25,12 @@
     <a href="#features">Features</a> •
     <a href="#installation">Quick Start</a> •
     <a href="#api-endpoints">API Docs</a> •
-    <a href="#architecture">Architecture</a>
+    <a href="#screenshots">Screenshots</a>
   </p>
+
+  <a href="https://user-authentication-systemm.netlify.app/">
+    <img src="./assets/screenshots/landing.png" alt="User Authentication System landing page" />
+  </a>
 
 </div>
 
@@ -60,6 +64,43 @@
 [🚀 View Live Demo](https://user-authentication-systemm.netlify.app/)
 
 > The interactive API documentation (Swagger UI) is available at `/api-docs` on the backend server.
+
+---
+
+## Screenshots
+
+All screenshots are captured from the [live deployment](https://user-authentication-systemm.netlify.app/).
+
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <a href="./assets/screenshots/landing.png"><img src="./assets/screenshots/landing.png" alt="Landing page" /></a>
+      <sub><b>Landing</b><br/>Marketing hero &amp; auth CTAs</sub>
+    </td>
+    <td align="center" width="33%">
+      <a href="./assets/screenshots/register.png"><img src="./assets/screenshots/register.png" alt="Register page" /></a>
+      <sub><b>Register</b><br/>Sign-up form &amp; password strength</sub>
+    </td>
+    <td align="center" width="33%">
+      <a href="./assets/screenshots/login.png"><img src="./assets/screenshots/login.png" alt="Login page" /></a>
+      <sub><b>Login</b><br/>Sign-in with forgot-password link</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="33%">
+      <a href="./assets/screenshots/verify-email-pending.png"><img src="./assets/screenshots/verify-email-pending.png" alt="Verify email prompt" /></a>
+      <sub><b>Verify email</b><br/>Post-registration confirmation</sub>
+    </td>
+    <td align="center" width="33%">
+      <a href="./assets/screenshots/forgot-password.png"><img src="./assets/screenshots/forgot-password.png" alt="Forgot password page" /></a>
+      <sub><b>Forgot password</b><br/>Request a reset link by email</sub>
+    </td>
+    <td align="center" width="33%">
+      <a href="./assets/screenshots/reset-password.png"><img src="./assets/screenshots/reset-password.png" alt="Reset password page" /></a>
+      <sub><b>Reset password</b><br/>Set a new password with strength rules</sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
